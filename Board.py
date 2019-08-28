@@ -1,8 +1,6 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
-
-
 class CheckersGui(tk.Frame):
 	def __init__(self, parent, *args, **kwargs):
 		"""setup the buttons, cliboard, tkinter frame, and images to be used
@@ -100,7 +98,6 @@ class CheckersGui(tk.Frame):
 		self.whoseTurnLabel.grid(row = 4, column = 10)
 
 		self.countdown()
-
 
 		for x in range(8):
 			for y in range(8):
@@ -236,7 +233,6 @@ class CheckersGui(tk.Frame):
 				returningIndices += ((x - 1, y + 1),)
 				returningIndices += self.getBackwardRightTakeIndices(x, y)
 				returningIndices += self.getBackwardLeftTakeIndices(x, y)
-
 		return returningIndices
 
 	def getBackwardRightTakeIndices(self, x, y):
@@ -255,8 +251,8 @@ class CheckersGui(tk.Frame):
 				if self.board[y+2][x-2] == 'b':
 					#add left take move to returning index
 					returningTakeIndices += ((x-2, y+2),)
-
 		return returningTakeIndices
+
 	def move(self, curx, cury, nexx, nexy):
 		if self.board[nexx][nexy] == 'p':
 			if self.board[curx][cury] == 'wp' and nexx == 0:
