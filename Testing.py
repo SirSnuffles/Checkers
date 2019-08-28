@@ -1,15 +1,121 @@
+class Piece(object):
+	def __init__(self, colour, position, king=False, selected = False):
+		self.colour = colour
+		self.king = king
+		self.position = position
+		self.positionX = position[0]
+		self.positionY = position[1]
+		self.selected = selected
 
-board = [{"a1":None, "a2":None, "a3":None, "a4":None, "a5":None, "a6":None, "a7":None, "a8":None}, 
-		{"b1":None, "b2":None, "b3":None, "b4":None, "b5":None, "b6":None, "b7":None, "b8":None},
-		{"c1":None, "c2":None, "c3":None, "c4":None, "c5":None, "c6":None, "c7":None, "c8":None}, 
-		{"d1":None, "d2":None, "d3":None, "d4":None, "d5":None, "d6":None, "d7":None, "d8":None},
-		{"e1":None, "e2":None, "e3":None, "e4":None, "e5":None, "e6":None, "e7":None, "e8":None}, 
-		{"f1":None, "f2":None, "f3":None, "f4":None, "f5":None, "f6":None, "f7":None, "f8":None},
-		{"g1":None, "g2":None, "g3":None, "g4":None, "g5":None, "g6":None, "g7":None, "g8":None},
-		{"h1":None, "h2":None, "h3":None, "h4":None, "h5":None, "h6":None, "h7":None, "h8":None}, 
-		]
+	def possibleTakeMove(self):
+		if not self.king:
+			if self.colour == 'white':
+				return ((self.positionX + 2, self.positionY - 2), (self.positionX - 2, self.positionY - 2),)
+			elif self.colour == 'red':
+				return ((self.positionX + 2, self.positionY + 2), (self.positionX - 2, self.positionY + 2),)
+		if self.king:
+			return ((self.positionX + 2, self.positionY - 2), (self.positionX - 2, self.positionY - 2),(self.positionX + 2, self.positionY + 2), (self.positionX - 2, self.positionY + 2),)
 
-for i in board:
-	for key, value in i.items():
-		if key == 'g7':
-			print(value)
+	def possibleStandardMove(self):
+		if not self.king:
+			if self.colour == 'white':
+				return ((self.positionX + 1, self.positionY - 1), (self.positionX - 1, self.positionY - 1),)
+			elif self.colour == 'red':
+				return ((self.positionX + 1, self.positionY + 1), (self.positionX - 1, self.positionY + 1),)
+		if self.king:
+			return ((self.positionX + 1, self.positionY - 1), (self.positionX - 1, self.positionY - 1),(self.positionX + 1, self.positionY + 1), (self.positionX - 1, self.positionY + 1),)
+
+class Checkers():
+	def __init__(self):
+		self.board = [[None for i in range(8)]for j in range(8)]
+		self.setupPieces()
+		self.handlePlayers()
+
+	def __repr__(self):
+		formattedBoard = [[]for i in range(8)]
+		count = 0
+		for indi, i in enumerate(self.board):
+			for j in i:
+				if j != None:
+					formattedBoard[indi].append(j.colour)
+				if j == None:
+					formattedBoard[indi].append(None)
+		for i in formattedBoard:
+			print(i)
+
+	def handlePlayers(self):
+		redPlayer = Player(True, 'red')
+		whitePlayer = Player(False, 'white')
+
+	def movePiece(self, x, y, newx, newy):
+		pieceToMove = self.selectPiece(x,y)
+		if pieceToMove:
+			for move in pieceToMove.possibleStandardMove():
+				if move == (newx,newy):
+
+					print(pieceToMove.positionX, newx)
+					print(pieceToMove.positionY, newy)
+					pieceToMove.positionX = newx
+					pieceToMove.positionY = newy
+					self.board[pieceToMove.positionY][pieceToMove.positionX], self.board[pieceToMove.positionY][pieceToMove.positionX] = self.board[newy][newx], None
+
+	def selectPiece(self, x, y):
+		"""select a piece from the board"""
+		return self.board[y][x]
+
+	def setupPieces(self):
+		"""changes the values and pictures of self.board and self.button to 
+		be in the setup position"""
+		whiteCount = 0
+		redCount = 0
+		for indpositionY in range(3):
+			for indpositionX, i in enumerate(self.board[indpositionY]):
+				if indpositionY % 2 == 0:
+					if indpositionX % 2 == 0:
+						self.board[indpositionY][indpositionX] = Piece('red', (indpositionX, indpositionY))
+						redCount += 1
+						# print(self.board[indpositionY][indpositionX].colour, ' added')
+				if indpositionY % 2 == 1:
+					if indpositionX % 2 == 1:
+						self.board[indpositionY][indpositionX] = Piece('red', (indpositionX, indpositionY))
+						redCount += 1
+						# print(self.board[indpositionY][indpositionX].colour, ' added')
+		for indpositionY in range(5,8):
+			for indpositionX, i in enumerate(self.board[indpositionY]):
+				if indpositionY % 2 == 0:
+					if indpositionX % 2 == 0:
+						self.board[indpositionY][indpositionX] = Piece('white', (indpositionX, indpositionY))
+						whiteCount += 1
+						# print(self.board[indpositionY][indpositionX].colour, ' added')
+				if indpositionY % 2 == 1:
+					if indpositionX % 2 == 1:
+						self.board[indpositionY][indpositionX] = Piece('white', (indpositionX, indpositionY))
+						whiteCount += 1
+						# print(self.board[indpositionY][indpositionX].colour, ' added')
+		print(redCount, whiteCount)
+
+class CheckersGui(tk.Frame):
+	def __init__(self, parent, *args, **kwargs):
+		#setup tkinter frame
+		tk.Frame.__init__(self, parent, *args, **kwargs)
+		parent = parent
+
+class Player(object):
+	def __init__(self, turn, colour):
+		self.turn = turn
+		self.colour = colour
+
+def main():
+	newBoard = Checkers()
+	newBoard.__repr__()
+	piece = newBoard.selectPiece(5,5)
+	piece.king = False
+	print(piece)
+	newBoard.movePiece(5,5,4,4)
+	print(piece.king)
+	print(piece.positionX, piece.positionY)
+	print(newBoard.selectPiece(4,4))
+	newBoard.__repr__()
+
+if __name__ == '__main__':
+	main()
