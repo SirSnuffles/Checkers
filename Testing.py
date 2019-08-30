@@ -1,3 +1,5 @@
+import tkinter as tk
+
 class Piece(object):
 	def __init__(self, colour, position, king=False, selected = False):
 		self.colour = colour
@@ -24,6 +26,21 @@ class Piece(object):
 				return ((self.positionX + 1, self.positionY + 1), (self.positionX - 1, self.positionY + 1),)
 		if self.king:
 			return ((self.positionX + 1, self.positionY - 1), (self.positionX - 1, self.positionY - 1),(self.positionX + 1, self.positionY + 1), (self.positionX - 1, self.positionY + 1),)
+
+class WhitePiece():
+	def __init__(self):
+		pass
+
+	def possibleMoves(self):
+		pass
+
+class RedPiece():
+	def __init__(self):
+		pass
+
+	def possibleMove(self):
+		pass
+
 
 class Checkers():
 	def __init__(self):
@@ -99,6 +116,8 @@ class CheckersGui(tk.Frame):
 		#setup tkinter frame
 		tk.Frame.__init__(self, parent, *args, **kwargs)
 		parent = parent
+		print('this')
+		newBoard.__repr__()
 
 class Player(object):
 	def __init__(self, turn, colour):
@@ -106,8 +125,13 @@ class Player(object):
 		self.colour = colour
 
 def main():
+	root = tk.Tk()
+	root.geometry('950x690')
+	CheckersGui(root).pack(side="top", fill="both", expand=True)
+	root.mainloop()
+	# newBoard.__repr__()
+
 	newBoard = Checkers()
-	newBoard.__repr__()
 	piece = newBoard.selectPiece(5,5)
 	piece.king = False
 	print(piece)
@@ -115,7 +139,7 @@ def main():
 	print(piece.king)
 	print(piece.positionX, piece.positionY)
 	print(newBoard.selectPiece(4,4))
-	newBoard.__repr__()
+	# newBoard.__repr__()
 
 if __name__ == '__main__':
 	main()

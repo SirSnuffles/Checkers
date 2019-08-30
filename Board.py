@@ -33,22 +33,37 @@ class CheckersGui(tk.Frame):
 
 		white = Image.open("wb.png")
 		self.WhiteImage = ImageTk.PhotoImage(white)
+
+		blue = Image.open("sbb.png")
+		self.BlueImage = ImageTk.PhotoImage(blue)
 		
 		redCounter = Image.open("rpbb.png")
 		self.redCounterImage = ImageTk.PhotoImage(redCounter)
 
+		selectedRedCounter = Image.open("srpbb.png")
+		self.selectedRedCounterImage = ImageTk.PhotoImage(selectedRedCounter)
+
 		whiteCounter = Image.open("wpbb.png")
 		self.whiteCounterImage = ImageTk.PhotoImage(whiteCounter)
+
+		selectedWhiteCounter = Image.open("swpbb.png")
+		self.selectedWhiteCounterImage = ImageTk.PhotoImage(selectedWhiteCounter)
 
 		possibleMove = Image.open("pm.png")
 		self.possibleMoveImage = ImageTk.PhotoImage(possibleMove)
 
-		redKing = Image.open("rpkbb.png")
-		self.redKingImage = ImageTk.PhotoImage(redKing)
+		redKingCounter = Image.open("rpkbb.png")
+		self.redKingCounterImage = ImageTk.PhotoImage(redKingCounter)
 
-		whiteKing = Image.open("wpkbb.png")
-		self.whiteKingImage = ImageTk.PhotoImage(whiteKing)
+		selectedRedKingCounter = Image.open("srpkbb.png")
+		self.selectedRedKingCounterImage = ImageTk.PhotoImage(selectedRedKingCounter)
 
+		whiteKingCounter = Image.open("wpkbb.png")
+		self.whiteKingCounterImage = ImageTk.PhotoImage(whiteKingCounter)
+
+		selectedWhiteKingCounter = Image.open("swpkbb.png")
+		self.selectedWhiteKingCounterImage = ImageTk.PhotoImage(selectedWhiteKingCounter)
+	
 	def setupPieces(self):
 		"""changes the values and pictures of self.board and self.button to 
 		be in the setup position"""
@@ -142,16 +157,22 @@ class CheckersGui(tk.Frame):
 				self.selectedButton = (x, y)
 
 				if self.board[y][x] == 'rp' and self.player1.turn == True:
+					#set selected image
+					self.board[y][x] = 'srp'
 					#for red pieces
 					for indexpair in self.getBackwardIndices(x,y):
 						self.board[indexpair[1]][indexpair[0]] = 'p'
 
 				elif self.board[y][x] == 'wp' and self.player2.turn == True:
+					#set selected image
+					self.board[y][x] = 'swp'
 					#for white pieces
 					for indexpair in self.getForwardIndices(x,y):
 						self.board[indexpair[1]][indexpair[0]] = 'p'
 
 				elif self.board[y][x] == 'rpk' and self.player1.turn == True:
+					#set selected image
+					self.board[y][x] = 'srpk'
 					#for red king pieces
 					for indexpair in self.getBackwardIndices(x,y):
 						self.board[indexpair[1]][indexpair[0]] = 'p'
@@ -159,6 +180,8 @@ class CheckersGui(tk.Frame):
 						self.board[indexpair[1]][indexpair[0]] = 'p'
 
 				elif self.board[y][x] == 'wpk' and self.player2.turn == True:
+					#set selected image
+					self.board[y][x] = 'swpk'
 					#for white king pieces
 					for indexpair in self.getBackwardIndices(x,y):
 						self.board[indexpair[1]][indexpair[0]] = 'p'
@@ -168,6 +191,7 @@ class CheckersGui(tk.Frame):
 				# self.updateBoard()
 			elif self.selectedButton != (x, y) and self.board[y][x] == 'p': 
 				#if a different button is pushed
+				self.board[self.selectedButton[1]][self.selectedButton[0]] = self.board[self.selectedButton[1]][self.selectedButton[0]].replace('s', ''))
 				self.nextButton = (x, y)
 				self.move(self.selectedButton[1],self.selectedButton[0], self.nextButton[1],self.nextButton[0])
 				moveMade = True
@@ -189,34 +213,35 @@ class CheckersGui(tk.Frame):
 			if self.board[y-1][x+1] == 'b':
 				#add right take move to returning index
 				returningIndices += ((x + 1, y - 1),)
-				returningIndices += self.getForwardLeftTakeIndices(x, y)
-				returningIndices += self.getForwardRightTakeIndices(x,y)
+			# returningIndices += self.getForwardTakeIndices(x, y)
 		if x in range(1,8) and y != 0:
 			if self.board[y-1][x-1] == 'b':
 				#add left move to returning index
 				returningIndices += ((x - 1, y - 1),)
-				returningIndices += self.getForwardLeftTakeIndices(x, y)
-				returningIndices += self.getForwardRightTakeIndices(x, y)
+		returningIndices += self.getForwardTakeIndices(x, y)
 		return returningIndices
 
-	def getForwardRightTakeIndices(self, x, y):
-		returningTakeIndices = ()
-		if x in range(6) and y != 1:
-			if self.board[y-1][x+1] == 'rp':
+	def getForwardTakeIndices(self, x, y):
+		self.returningTakeIndices = ()
+		self.taken = ()
+		if x in range(6) and y not in range(0,2):
+			if self.board[y-1][x+1] in ('rp', 'rpk', 'wpk'):
 				if self.board[y-2][x+2] == 'b':
+					self.taken += ((x + 1, y - 1),)
 					#add right take move to returning index
-					# self.taken = True
-					returningTakeIndices += ((x + 2, y - 2),)
-		return returningTakeIndices
+					self.returningTakeIndices += ((x + 2, y - 2),)
 
-	def getForwardLeftTakeIndices(self, x, y):
-		returningTakeIndices = ()
-		if x in range(2,8) and y != 1:
-			if self.board[y-1][x-1] == 'rp':
+		if x in range(2,8) and y not in range(0,2):
+			if self.board[y-1][x-1] in ('rp', 'rpk', 'wpk'):
 				if self.board[y-2][x-2] == 'b':
+					self.taken += ((x-1,y-1),)
 					#add left take move to returning index
-					returningTakeIndices += ((x-2, y-2),)
-		return returningTakeIndices
+					self.returningTakeIndices += ((x-2, y-2),)
+		if len(self.taken) > 0:
+			self.returningTakeIndices += self.getForwardTakeIndices(x+2,y-2)
+			self.returningTakeIndices += self.getForwardTakeIndices(x-2,y-2)
+
+		return self.returningTakeIndices
 
 	def getBackwardIndices(self, x, y):
 		"""Standard red move"""
@@ -225,33 +250,38 @@ class CheckersGui(tk.Frame):
 			if self.board[y+1][x+1] == 'b':
 				#add right take move to returning index
 				returningIndices += ((x + 1, y + 1),)
-				returningIndices += self.getBackwardRightTakeIndices(x, y)
-				returningIndices += self.getBackwardLeftTakeIndices(x, y)
+			# returningIndices += self.getBackwardTakeIndices(x, y)
 		if x in range(1,8) and y != 7:
 			if self.board[y+1][x-1] == 'b':
 				#add left take move to returning index
 				returningIndices += ((x - 1, y + 1),)
-				returningIndices += self.getBackwardRightTakeIndices(x, y)
-				returningIndices += self.getBackwardLeftTakeIndices(x, y)
+		returningIndices += self.getBackwardTakeIndices(x, y)
 		return returningIndices
 
-	def getBackwardRightTakeIndices(self, x, y):
-		returningTakeIndices = ()
-		if x in range(6) and y != 6:
-			if self.board[y+1][x+1] == 'wp':
-				if self.board[y+2][x+2] == 'b':
-					#add right take move to returning index
-					returningTakeIndices += ((x + 2, y + 2),)
-		return returningTakeIndices
+	def getBackwardTakeIndices(self, x, y):
+		self.returningTakeIndices = ()
+		taken = ()
 
-	def getBackwardLeftTakeIndices(self, x, y):
-		returningTakeIndices = ()
-		if x in range(2,8) and y != 6:
-			if self.board[y+1][x-1] == 'wp' and x in range(2,8):
+		if x in range(6) and y not in range(6,8):
+			if self.board[y+1][x+1] in ('wp', 'wpk'):
+				if self.board[y+2][x+2] == 'b':
+					taken += ((x+1, y+1),)
+					self.returningTakeIndices += ((x + 2, y + 2),)
+					#add right take move to returning index
+					print(x + 2, y + 2, "right")
+		if x in range(2,8) and y not in range(6,8):
+			if self.board[y+1][x-1] in ('wp', 'wpk'):
 				if self.board[y+2][x-2] == 'b':
 					#add left take move to returning index
-					returningTakeIndices += ((x-2, y+2),)
-		return returningTakeIndices
+					print(x-2, y + 2, "left")
+					taken += ((x-2,y+2),)
+					self.returningTakeIndices += ((x-2, y+2),)
+		if len(taken) > 0:
+			print(x, y)
+			self.returningTakeIndices += self.getBackwardTakeIndices(x+2, y + 2)
+			self.returningTakeIndices += self.getBackwardTakeIndices(x-2,y+2)
+		print('got here red', self.returningTakeIndices)
+		return self.returningTakeIndices
 
 	def move(self, curx, cury, nexx, nexy):
 		if self.board[nexx][nexy] == 'p':
@@ -268,11 +298,15 @@ class CheckersGui(tk.Frame):
 						self.board[indx][indy] = 'b'
 
 			#find index of the taken piece
-			midx = ((curx-nexx)/2 + nexx)
-			midy = ((cury-nexy)/2 + nexy)
+
 			#move the piece
 			self.board[nexx][nexy] = self.board[curx][cury]
 			self.board[curx][cury] = 'b'
+
+			#delete all pieces in self.deletedPieces
+
+			midx = ((curx-nexx)/2 + nexx)
+			midy = ((cury-nexy)/2 + nexy)
 			if midx.is_integer() and midy.is_integer():
 				
 				self.taken = True
@@ -332,6 +366,18 @@ class CheckersGui(tk.Frame):
 					self.button[indx][indy].config(image=self.redKingImage)
 				elif y == 'wpk':
 					self.button[indx][indy].config(image=self.whiteKingImage)
+				elif y == 'srp':
+					self.button[indx][indy].config(image=self.selectedRedCounterImage)
+				elif y == 'swp':
+					self.button[indx][indy].config(image=self.selectedWhiteCounterImage)
+				elif y == 'srpk':
+					self.button[indx][indy].config(image=self.selectedRedKingCounterImage)
+				elif y == 'swpk':
+					self.button[indx][indy].config(image=self.selectedWhiteKingCounterImage)
+				elif y == 'sb':
+					self.button[indx][indy].config(image=self.BlueImage)
+
+
 
 class Player(CheckersGui):
 	def __init__(self, name, turn, colour, winStatus, timeRemaining = 500, numberOfPieces = 12):
@@ -359,13 +405,14 @@ if __name__ == '__main__':
 
 #NOTES:
 
-#Allow multiple taking
-#implement king movement methods
+#Allow multiple taking (deletion of middle pieces)
+#implement king movement methods (cant take backwards?)
 #Could implement Piece class???
-#need to implement selected piece button image configuration
+#need to optimise updateBoard to only update images that have changed
 
 #issues:
 
-#pieces lag on the 7th row for some reason
+#pieces lag on the 7th row for some reason; probably needs optimizing
+#	This may be due to
 
 #cant take 2 pieces at once??
