@@ -11,7 +11,6 @@ class CheckersGui(tk.Frame):
 
 		self.button = [[''for x in range(8)] for y in range(8)]
 		self.board = [['' for x in range(8)] for y in range(8)]
-
 		self.taken = False
 
 		self.selectedButton = ()
@@ -174,24 +173,35 @@ class CheckersGui(tk.Frame):
 					#set selected image
 					self.board[y][x] = 'srpk'
 					#for red king pieces
+					print('got here', x, y)
 					for indexpair in self.getBackwardIndices(x,y):
 						self.board[indexpair[1]][indexpair[0]] = 'p'
 					for indexpair in self.getForwardIndices(x,y):
 						self.board[indexpair[1]][indexpair[0]] = 'p'
+					# for indexpair in self.getBackwardTakeIndices(x,y):
+					# 	self.board[indexpair[1]][indexpair[0]] = 'p'
+					# for indexpair in self.getForwardTakeIndices(x,y):
+					# 	self.board[indexpair[1]][indexpair[0]] = 'p'
 
 				elif self.board[y][x] == 'wpk' and self.player2.turn == True:
 					#set selected image
+					print('got here white', x, y)
+					print(self.getBackwardTakeIndices(x,y), 'backward')
+					print(self.getForwardTakeIndices(x,y), 'forward')
 					self.board[y][x] = 'swpk'
 					#for white king pieces
 					for indexpair in self.getBackwardIndices(x,y):
 						self.board[indexpair[1]][indexpair[0]] = 'p'
 					for indexpair in self.getForwardIndices(x,y):
 						self.board[indexpair[1]][indexpair[0]] = 'p'
-
+					# for indexpair in self.getBackwardTakeIndices(x,y):
+					# 	self.board[indexpair[1]][indexpair[0]] = 'p'
+					# for indexpair in self.getForwardTakeIndices(x,y):
+					# 	self.board[indexpair[1]][indexpair[0]] = 'p'
 				# self.updateBoard()
 			elif self.selectedButton != (x, y) and self.board[y][x] == 'p': 
 				#if a different button is pushed
-				self.board[self.selectedButton[1]][self.selectedButton[0]] = self.board[self.selectedButton[1]][self.selectedButton[0]].replace('s', ''))
+				self.board[self.selectedButton[1]][self.selectedButton[0]] = self.board[self.selectedButton[1]][self.selectedButton[0]].replace('s', '')
 				self.nextButton = (x, y)
 				self.move(self.selectedButton[1],self.selectedButton[0], self.nextButton[1],self.nextButton[0])
 				moveMade = True
@@ -199,6 +209,8 @@ class CheckersGui(tk.Frame):
 				# self.updateBoard()
 			elif self.selectedButton == (x, y):
 				#if the same button is pushed
+				self.board[self.selectedButton[1]][self.selectedButton[0]] = self.board[self.selectedButton[1]][self.selectedButton[0]].replace('s', '')
+				
 				for indx, moveCol in enumerate(self.board):
 					for indy, move in enumerate(moveCol):
 						if move == 'p':
@@ -210,37 +222,31 @@ class CheckersGui(tk.Frame):
 		"""Standard White move"""
 		returningIndices = ()
 		if x in range(7) and y != 0:
-			if self.board[y-1][x+1] == 'b':
+			if self.board[y - 1][x + 1] == 'b':
 				#add right take move to returning index
 				returningIndices += ((x + 1, y - 1),)
 			# returningIndices += self.getForwardTakeIndices(x, y)
-		if x in range(1,8) and y != 0:
-			if self.board[y-1][x-1] == 'b':
+		if x in range(1, 8) and y != 0:
+			if self.board[y - 1][x - 1] == 'b':
 				#add left move to returning index
 				returningIndices += ((x - 1, y - 1),)
 		returningIndices += self.getForwardTakeIndices(x, y)
 		return returningIndices
 
 	def getForwardTakeIndices(self, x, y):
+		"""Standard white take moves"""
 		self.returningTakeIndices = ()
-		self.taken = ()
-		if x in range(6) and y not in range(0,2):
-			if self.board[y-1][x+1] in ('rp', 'rpk', 'wpk'):
-				if self.board[y-2][x+2] == 'b':
-					self.taken += ((x + 1, y - 1),)
+		if x in range(6) and y not in range(0, 2):
+			if self.board[y - 1][x + 1][0] != self.board[y][x][1] and self.board[y-1][x+1] != 'b':
+				if self.board[y - 2][x + 2] == 'b':
 					#add right take move to returning index
 					self.returningTakeIndices += ((x + 2, y - 2),)
 
-		if x in range(2,8) and y not in range(0,2):
-			if self.board[y-1][x-1] in ('rp', 'rpk', 'wpk'):
-				if self.board[y-2][x-2] == 'b':
-					self.taken += ((x-1,y-1),)
+		if x in range(2, 8) and y not in range(0, 2):
+			if self.board[y - 1][x - 1][0] != self.board[y][x][1] and self.board[y-1][x-1] != 'b':
+				if self.board[y - 2][x - 2] == 'b':
 					#add left take move to returning index
-					self.returningTakeIndices += ((x-2, y-2),)
-		if len(self.taken) > 0:
-			self.returningTakeIndices += self.getForwardTakeIndices(x+2,y-2)
-			self.returningTakeIndices += self.getForwardTakeIndices(x-2,y-2)
-
+					self.returningTakeIndices += ((x - 2, y - 2),)
 		return self.returningTakeIndices
 
 	def getBackwardIndices(self, x, y):
@@ -259,28 +265,22 @@ class CheckersGui(tk.Frame):
 		return returningIndices
 
 	def getBackwardTakeIndices(self, x, y):
+		"""Standard red take move"""
 		self.returningTakeIndices = ()
-		taken = ()
 
 		if x in range(6) and y not in range(6,8):
-			if self.board[y+1][x+1] in ('wp', 'wpk'):
-				if self.board[y+2][x+2] == 'b':
-					taken += ((x+1, y+1),)
+			print(self.board[y+1][x+1][0], self.board[y][x][1])
+			if self.board[y + 1][x + 1][0] != self.board[y][x][1] and self.board[y+1][x+1] != 'b':
+				if self.board[y + 2][x + 2] == 'b':
 					self.returningTakeIndices += ((x + 2, y + 2),)
 					#add right take move to returning index
-					print(x + 2, y + 2, "right")
-		if x in range(2,8) and y not in range(6,8):
-			if self.board[y+1][x-1] in ('wp', 'wpk'):
-				if self.board[y+2][x-2] == 'b':
+		if x in range(2, 8) and y not in range(6, 8):
+
+			print(self.board[y+1][x-1][0], self.board[y][x][1])
+			if self.board[y + 1][x - 1][0] != self.board[y][x][1] and self.board[y+1][x-1] != 'b':
+				if self.board[y + 2][x - 2] == 'b':
 					#add left take move to returning index
-					print(x-2, y + 2, "left")
-					taken += ((x-2,y+2),)
-					self.returningTakeIndices += ((x-2, y+2),)
-		if len(taken) > 0:
-			print(x, y)
-			self.returningTakeIndices += self.getBackwardTakeIndices(x+2, y + 2)
-			self.returningTakeIndices += self.getBackwardTakeIndices(x-2,y+2)
-		print('got here red', self.returningTakeIndices)
+					self.returningTakeIndices += ((x - 2, y + 2),)
 		return self.returningTakeIndices
 
 	def move(self, curx, cury, nexx, nexy):
@@ -298,17 +298,15 @@ class CheckersGui(tk.Frame):
 						self.board[indx][indy] = 'b'
 
 			#find index of the taken piece
-
+			self.taken = False
 			#move the piece
 			self.board[nexx][nexy] = self.board[curx][cury]
 			self.board[curx][cury] = 'b'
 
 			#delete all pieces in self.deletedPieces
-
 			midx = ((curx-nexx)/2 + nexx)
 			midy = ((cury-nexy)/2 + nexy)
 			if midx.is_integer() and midy.is_integer():
-				
 				self.taken = True
 			midx, midy = int(midx), int(midy)
 			if self.taken == True:
@@ -320,16 +318,44 @@ class CheckersGui(tk.Frame):
 					self.player1.numberOfPieces -= 1
 					#take player piece away from count
 				self.board[midx][midy] = 'b'
-				self.taken = False
-
-
+			message = self.player1.name + "'s turn!"
 			#update turn of players
-			if self.player1.turn == True:
-				self.player1.turn = False
-				self.player2.turn = True
-			elif self.player2.turn == True:
-				self.player2.turn = False
-				self.player1.turn = True
+			if self.taken == True:
+				if self.player1.turn == True:
+					#set a message stating whose turn it is
+					message = self.player1.name + "'s turn!"
+					#continue only if piece can take...
+					if self.getBackwardTakeIndices(self.nextButton[0],self.nextButton[1]):
+						self.taken = True
+						# self.board[self.selectedButton[0], self.selectedButton[1]] = 'p'
+					else:
+						self.taken = False
+						# self.board[self.selectedButton[0], self.selectedButton[1]] = 'p'
+
+				elif self.player2.turn == True:
+					#set a message stating whose turn it is
+					message = self.player2.name + "'s turn!"
+					if self.getForwardTakeIndices(self.nextButton[0],self.nextButton[1]):
+						self.taken = True
+						# self.board[self.selectedButton[0], self.selectedButton[1]] = 'p'
+					else:
+						self.taken = False
+
+			if self.taken == False:
+				if self.player1.turn == True:
+					#set a message stating whose turn it is
+					message = self.player2.name + "'s turn!"
+					self.player1.turn = False
+					self.player2.turn = True
+				elif self.player2.turn == True:
+					#set a message stating whose turn it is
+					message = self.player1.name + "'s turn!"
+					self.player2.turn = False
+					self.player1.turn = True
+
+
+			self.taken = False
+			self.whoseTurnLabel.configure(text=message)
 
 			#reset the button Pushed to not pushed
 			self.selectedButton = ()
@@ -337,19 +363,14 @@ class CheckersGui(tk.Frame):
 			#update Label with piece numbers of each player
 			self.player1PieceCountLabel.configure(text="%d" % self.player1.numberOfPieces)
 			self.player2PieceCountLabel.configure(text="%d" % self.player2.numberOfPieces)
-			
-			#set a message stating whose turn it is
-			if self.player1.turn == True:
-				message = self.player1.name + "'s turn!"
-			elif self.player2.turn == True:
-				message = self.player2.name + "'s turn!"
-			self.whoseTurnLabel.configure(text=message)
 
 			#update button images with new cli settings (could use optimization)
 			self.updateBoard()
 
 	def updateBoard(self):
 		# update buttons with images of self.board
+		#TODO:
+		#collapse to config when self.board is edited
 		for indx, x in enumerate(self.board):
 			for indy, y in enumerate(x):
 				if y == 'wp':
@@ -363,9 +384,9 @@ class CheckersGui(tk.Frame):
 				elif y == 'p':
 					self.button[indx][indy].config(image=self.possibleMoveImage)
 				elif y == 'rpk':
-					self.button[indx][indy].config(image=self.redKingImage)
+					self.button[indx][indy].config(image=self.redKingCounterImage)
 				elif y == 'wpk':
-					self.button[indx][indy].config(image=self.whiteKingImage)
+					self.button[indx][indy].config(image=self.whiteKingCounterImage)
 				elif y == 'srp':
 					self.button[indx][indy].config(image=self.selectedRedCounterImage)
 				elif y == 'swp':
@@ -376,8 +397,6 @@ class CheckersGui(tk.Frame):
 					self.button[indx][indy].config(image=self.selectedWhiteKingCounterImage)
 				elif y == 'sb':
 					self.button[indx][indy].config(image=self.BlueImage)
-
-
 
 class Player(CheckersGui):
 	def __init__(self, name, turn, colour, winStatus, timeRemaining = 500, numberOfPieces = 12):
@@ -393,20 +412,18 @@ class Piece(CheckersGui):
 		self.colour = colour
 		self.king = False
 
-
 def main():
 	newBoard = CheckersBoard()
 
 if __name__ == '__main__':
 	root = tk.Tk()
 	root.geometry('950x690')
+	root.title('Checkers')
 	CheckersGui(root).pack(side="top", fill="both", expand=True)
 	root.mainloop()		
 
 #NOTES:
 
-#Allow multiple taking (deletion of middle pieces)
-#implement king movement methods (cant take backwards?)
 #Could implement Piece class???
 #need to optimise updateBoard to only update images that have changed
 
@@ -414,5 +431,10 @@ if __name__ == '__main__':
 
 #pieces lag on the 7th row for some reason; probably needs optimizing
 #	This may be due to
+#Dont call updateboard, config individual button images when changing piece in self.board
 
-#cant take 2 pieces at once??
+#implement king movement methods (cant take backwards?)
+# 	problem2: kings cant multi take backwards
+
+#When a piece is taken, a player can select any other piece; IE, instead of not only
+#changing player move, only allow that piece to selected, if deselecte, move over.
